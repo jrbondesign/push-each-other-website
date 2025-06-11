@@ -44,7 +44,7 @@ export default async function PodcastWebsite() {
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center space-x-2">
               <Podcast className="h-8 w-8 text-red-800" />
-              <span className="text-xl font-bold text-gray-900">Push Each Other to the Top</span>
+              <span className="text-xl font-bold text-gray-900">Push Each Other to the Top Podcast</span>
             </div>
             <nav className="hidden md:flex items-center space-x-6">
               <Link href="#about" className="text-gray-600 hover:text-gray-900 transition-colors">
@@ -226,7 +226,7 @@ export default async function PodcastWebsite() {
             <div className="space-y-4">
               <div className="flex items-center space-x-2">
                 <Podcast className="h-6 w-6 text-red-400" />
-                <span className="text-lg font-bold text-white">Push Each Other to the Top</span>
+                <span className="text-lg font-bold text-white">Push Each Other to the Top Podcast</span>
               </div>
               <p className="text-gray-400">
                 A podcast about recovery, resilience, and the power of honest conversation.

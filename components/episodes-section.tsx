@@ -5,9 +5,24 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Play, Calendar } from "lucide-react"
 import { fetchEpisodes } from "@/lib/rss-parser"
+import Image from "next/image"
 
 export default async function EpisodesSection() {
   const episodes = await fetchEpisodes()
+
+  // Function to clean up text and convert HTML entities to proper quotes
+  const cleanText = (text: string) => {
+    return text
+      .replace(/&quot;/g, '"')
+      .replace(/&apos;/g, "'")
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&#8220;/g, '"')
+      .replace(/&#8221;/g, '"')
+      .replace(/&#8216;/g, "'")
+      .replace(/&#8217;/g, "'")
+  }
 
   return (
     <section id="episodes" className="py-20 bg-red-50">
@@ -23,21 +38,28 @@ export default async function EpisodesSection() {
               className={`${episode.featured ? "ring-2 ring-red-800" : ""} hover:shadow-lg transition-shadow bg-white`}
             >
               <CardHeader className="pb-4">
-                <div className="flex items-start justify-between">
+                <div className="flex items-start gap-4">
+                  <div className="shrink-0">
+                    <Image
+                      src={episode.imageUrl || "/podcast-cover.png"}
+                      alt={`${cleanText(episode.title)} episode artwork`}
+                      width={80}
+                      height={80}
+                      className="rounded-lg shadow-sm"
+                    />
+                  </div>
                   <div className="space-y-2 flex-1">
                     <div className="flex items-center gap-2">
                       {episode.featured && <Badge className="bg-red-800 hover:bg-red-900">Featured</Badge>}
                       <span className="text-sm text-gray-500">Episode {episodes.length - index}</span>
                     </div>
-                    <CardTitle className="text-xl">{episode.title}</CardTitle>
-                    <CardDescription className="text-base">
-                      {episode.description.replace(/&quot;/g, '"').replace(/&apos;/g, "'")}
-                    </CardDescription>
+                    <CardTitle className="text-xl">{cleanText(episode.title)}</CardTitle>
+                    <CardDescription className="text-base">{cleanText(episode.description)}</CardDescription>
                   </div>
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="shrink-0 ml-4 hover:bg-red-50"
+                    className="shrink-0 hover:bg-red-50"
                     onClick={() => episode.audioUrl && window.open(episode.audioUrl, "_blank")}
                   >
                     <Play className="w-4 h-4" />

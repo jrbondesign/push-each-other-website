@@ -5,6 +5,7 @@ export interface Episode {
   duration: string
   date: string
   audioUrl: string
+  imageUrl?: string
   featured?: boolean
 }
 
@@ -29,13 +30,26 @@ export async function fetchEpisodes(): Promise<Episode[]> {
     itemMatches.forEach((itemXml, index) => {
       // Extract title
       const titleMatch = itemXml.match(/<title[^>]*><!\[CDATA\[(.*?)\]\]><\/title>|<title[^>]*>(.*?)<\/title>/)
-      const title = (titleMatch?.[1] || titleMatch?.[2] || "Untitled Episode").trim()
+      const rawTitle = (titleMatch?.[1] || titleMatch?.[2] || "Untitled Episode").trim()
+      // Clean up HTML entities in title
+      const title = rawTitle
+        .replace(/&quot;/g, '"')
+        .replace(/&apos;/g, "'")
+        .replace(/&amp;/g, "&")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
 
       // Extract description
       const descMatch = itemXml.match(
         /<description[^>]*><!\[CDATA\[(.*?)\]\]><\/description>|<description[^>]*>(.*?)<\/description>/,
       )
-      const description = (descMatch?.[1] || descMatch?.[2] || "").replace(/<[^>]*>/g, "").trim()
+      const rawDescription = (descMatch?.[1] || descMatch?.[2] || "").replace(/<[^>]*>/g, "").trim()
+      const description = rawDescription
+        .replace(/&quot;/g, '"')
+        .replace(/&apos;/g, "'")
+        .replace(/&amp;/g, "&")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
 
       // Extract pub date
       const pubDateMatch = itemXml.match(/<pubDate[^>]*>(.*?)<\/pubDate>/)
@@ -48,6 +62,11 @@ export async function fetchEpisodes(): Promise<Episode[]> {
       // Extract audio URL
       const enclosureMatch = itemXml.match(/<enclosure[^>]*url="([^"]*)"/)
       const audioUrl = enclosureMatch?.[1] || ""
+
+      // Extract episode image
+      const imageMatch =
+        itemXml.match(/<itunes:image[^>]*href="([^"]*)"/) || itemXml.match(/<image[^>]*><url[^>]*>([^<]*)<\/url>/)
+      const imageUrl = imageMatch?.[1] || "/podcast-cover.png"
 
       // Extract GUID
       const guidMatch = itemXml.match(/<guid[^>]*>(.*?)<\/guid>/)
@@ -69,6 +88,7 @@ export async function fetchEpisodes(): Promise<Episode[]> {
         duration: duration,
         date: formattedDate,
         audioUrl: audioUrl,
+        imageUrl: imageUrl,
         featured: index === 0, // Mark first episode as featured
       })
     })
@@ -85,6 +105,7 @@ export async function fetchEpisodes(): Promise<Episode[]> {
         duration: "45:00",
         date: "Recent",
         audioUrl: "",
+        imageUrl: "/podcast-cover.png",
         featured: true,
       },
     ]
