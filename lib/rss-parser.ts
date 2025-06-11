@@ -19,23 +19,39 @@ export async function fetchEpisodes(): Promise<Episode[]> {
     }
 
     const xmlText = await response.text()
-    const parser = new DOMParser()
-    const xmlDoc = parser.parseFromString(xmlText, "text/xml")
 
-    const items = xmlDoc.querySelectorAll("item")
+    // Use regex parsing instead of DOMParser for server compatibility
     const episodes: Episode[] = []
 
-    items.forEach((item, index) => {
-      const title = item.querySelector("title")?.textContent || "Untitled Episode"
-      const description = item.querySelector("description")?.textContent || ""
-      const pubDate = item.querySelector("pubDate")?.textContent || ""
-      const duration = item.querySelector("itunes\\:duration, duration")?.textContent || "0:00"
-      const enclosure = item.querySelector("enclosure")
-      const audioUrl = enclosure?.getAttribute("url") || ""
-      const guid = item.querySelector("guid")?.textContent || `episode-${index}`
+    // Extract items using regex
+    const itemMatches = xmlText.match(/<item[^>]*>[\s\S]*?<\/item>/g) || []
 
-      // Clean up description (remove HTML tags)
-      const cleanDescription = description.replace(/<[^>]*>/g, "").trim()
+    itemMatches.forEach((itemXml, index) => {
+      // Extract title
+      const titleMatch = itemXml.match(/<title[^>]*><!\[CDATA\[(.*?)\]\]><\/title>|<title[^>]*>(.*?)<\/title>/)
+      const title = (titleMatch?.[1] || titleMatch?.[2] || "Untitled Episode").trim()
+
+      // Extract description
+      const descMatch = itemXml.match(
+        /<description[^>]*><!\[CDATA\[(.*?)\]\]><\/description>|<description[^>]*>(.*?)<\/description>/,
+      )
+      const description = (descMatch?.[1] || descMatch?.[2] || "").replace(/<[^>]*>/g, "").trim()
+
+      // Extract pub date
+      const pubDateMatch = itemXml.match(/<pubDate[^>]*>(.*?)<\/pubDate>/)
+      const pubDate = pubDateMatch?.[1] || ""
+
+      // Extract duration
+      const durationMatch = itemXml.match(/<itunes:duration[^>]*>(.*?)<\/itunes:duration>/)
+      const duration = durationMatch?.[1] || "0:00"
+
+      // Extract audio URL
+      const enclosureMatch = itemXml.match(/<enclosure[^>]*url="([^"]*)"/)
+      const audioUrl = enclosureMatch?.[1] || ""
+
+      // Extract GUID
+      const guidMatch = itemXml.match(/<guid[^>]*>(.*?)<\/guid>/)
+      const guid = guidMatch?.[1] || `episode-${index}`
 
       // Format date
       const formattedDate = pubDate
@@ -48,8 +64,8 @@ export async function fetchEpisodes(): Promise<Episode[]> {
 
       episodes.push({
         id: guid,
-        title: title.trim(),
-        description: cleanDescription.substring(0, 200) + (cleanDescription.length > 200 ? "..." : ""),
+        title: title,
+        description: description.substring(0, 200) + (description.length > 200 ? "..." : ""),
         duration: duration,
         date: formattedDate,
         audioUrl: audioUrl,
