@@ -97,10 +97,6 @@ export default async function PodcastWebsite() {
                   <Play className="w-5 h-5 mr-2" />
                   Start Listening
                 </Button>
-                <Button size="lg" variant="outline" className="border-red-800 text-red-800 hover:bg-red-50">
-                  <Users className="w-5 h-5 mr-2" />
-                  Find Hope
-                </Button>
               </div>
               <div className="flex items-center space-x-8 text-sm text-gray-500">
                 <div className="flex items-center space-x-2">
