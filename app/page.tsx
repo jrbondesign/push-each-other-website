@@ -189,6 +189,47 @@ export default async function PodcastWebsite() {
       <section id="about" className="py-20 bg-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-left space-y-8">
+            {/* Host Cards - moved here */}
+            <div className="text-center space-y-4 mb-16">
+              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900">Meet Your Hosts</h2>
+              <p className="text-lg text-gray-600">The voices behind the conversations</p>
+            </div>
+            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-16">
+              <div className="bg-gray-50 p-8 rounded-xl text-center shadow-sm hover:shadow-md transition-shadow">
+                <div className="w-19 h-19 mb-6 overflow-hidden rounded-full mx-auto">
+                  <Image
+                    src="/jonathan-photo.png"
+                    alt="Jonathan - Podcast Host"
+                    width={75}
+                    height={75}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <h3 className="text-2xl font-semibold mb-3">Jonathan</h3>
+                <p className="text-gray-600 leading-relaxed">
+                  Host who listens, asks, and reflects as they explore what it means to fall, and what it takes to climb
+                  again.
+                </p>
+              </div>
+              <div className="bg-gray-50 p-8 rounded-xl text-center shadow-sm hover:shadow-md transition-shadow">
+                <div className="w-19 h-19 mb-6 overflow-hidden rounded-full mx-auto">
+                  <Image
+                    src="/brent-photo.png"
+                    alt="Brent - Podcast Host"
+                    width={75}
+                    height={75}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <h3 className="text-2xl font-semibold mb-3">Brent</h3>
+                <p className="text-gray-600 leading-relaxed">
+                  Shares his journey through addiction, healing, faith, and the long road back — not as an expert, but
+                  as someone who's been there.
+                </p>
+              </div>
+            </div>
+
+            {/* About the Show content starts here */}
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900">About the Show</h2>
             <p className="text-lg text-gray-600 leading-relaxed">
               Push Each Other to the Top is a podcast about recovery, resilience, and the power of honest conversation.
@@ -200,30 +241,6 @@ export default async function PodcastWebsite() {
               These aren't polished success stories — they're raw, real, and full of hope. If you're looking for a
               podcast that meets you in the mess and helps you move forward, you're in the right place.
             </p>
-
-            {/* Hosts Section */}
-            <div className="mt-12 grid md:grid-cols-2 gap-8">
-              <div className="bg-red-50 p-6 rounded-xl text-left">
-                <div className="w-20 h-20 bg-red-100 rounded-full mb-4 flex items-center justify-center">
-                  <span className="text-2xl font-bold text-red-800">J</span>
-                </div>
-                <h3 className="text-xl font-semibold mb-2">Jonathan</h3>
-                <p className="text-gray-600">
-                  Host who listens, asks, and reflects as they explore what it means to fall, and what it takes to climb
-                  again.
-                </p>
-              </div>
-              <div className="bg-red-50 p-6 rounded-xl text-left">
-                <div className="w-20 h-20 bg-red-100 rounded-full mb-4 flex items-center justify-center">
-                  <span className="text-2xl font-bold text-red-800">B</span>
-                </div>
-                <h3 className="text-xl font-semibold mb-2">Brent</h3>
-                <p className="text-gray-600">
-                  Shares his journey through addiction, healing, faith, and the long road back — not as an expert, but
-                  as someone who's been there.
-                </p>
-              </div>
-            </div>
 
             <div className="grid md:grid-cols-3 gap-8 mt-12">
               <div className="text-left space-y-4">
