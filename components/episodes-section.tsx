@@ -42,7 +42,9 @@ export default function EpisodesSection({ episodes }: EpisodesSectionProps) {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center space-y-4 mb-12">
           <h2 className="text-3xl lg:text-4xl font-bold text-gray-900">Latest Episodes</h2>
-          <p className="text-lg text-gray-600">Catch up on our most recent conversations</p>
+          <p className="text-lg text-gray-600">
+            Catch up on our most recent conversations ({episodes.length} episodes available)
+          </p>
         </div>
         <div className="grid gap-6">
           {displayedEpisodes.map((episode, index) => (
@@ -78,6 +80,7 @@ export default function EpisodesSection({ episodes }: EpisodesSectionProps) {
                       <Calendar className="w-4 h-4 mr-1" />
                       {episode.date}
                     </span>
+                    <span className="text-xs">Duration: {episode.duration}</span>
                   </div>
                   <SimplePlayButton
                     episode={{
@@ -120,6 +123,20 @@ export default function EpisodesSection({ episodes }: EpisodesSectionProps) {
             </Button>
           </div>
         )}
+
+        {/* Debug info - remove this in production */}
+        <div className="mt-8 p-4 bg-gray-100 rounded-lg text-sm text-gray-600">
+          <p>Debug: Total episodes loaded: {episodes.length}</p>
+          <p>Debug: Showing episodes: {displayedEpisodes.length}</p>
+          <p>Debug: Episode titles:</p>
+          <ul className="list-disc list-inside mt-2">
+            {episodes.map((ep, idx) => (
+              <li key={ep.id}>
+                Episode {episodes.length - idx}: {cleanText(ep.title)}
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </section>
   )

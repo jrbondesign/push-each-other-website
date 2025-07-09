@@ -20,12 +20,14 @@ export async function fetchEpisodes(): Promise<Episode[]> {
     }
 
     const xmlText = await response.text()
+    console.log("RSS Feed fetched, length:", xmlText.length) // Debug log
 
     // Use regex parsing instead of DOMParser for server compatibility
     const episodes: Episode[] = []
 
     // Extract items using regex
     const itemMatches = xmlText.match(/<item[^>]*>[\s\S]*?<\/item>/g) || []
+    console.log("Found", itemMatches.length, "episodes in RSS feed") // Debug log
 
     itemMatches.forEach((itemXml, index) => {
       // Extract title
@@ -105,9 +107,12 @@ export async function fetchEpisodes(): Promise<Episode[]> {
         imageUrl: imageUrl,
         featured: index === 0, // Mark first episode as featured
       })
+
+      console.log(`Episode ${index + 1}: ${title}`) // Debug log
     })
 
-    return episodes // Return ALL episodes instead of limiting to 4
+    console.log("Total episodes processed:", episodes.length) // Debug log
+    return episodes // Return ALL episodes
   } catch (error) {
     console.error("Error fetching RSS feed:", error)
     // Return fallback episodes if RSS fetch fails
