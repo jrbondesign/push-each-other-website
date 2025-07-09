@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Calendar, ChevronDown, ChevronUp } from "lucide-react"
-import { AudioPlayer } from "@/components/audio-player"
+import { SimplePlayButton } from "@/components/simple-play-button"
 import Image from "next/image"
 import type { Episode } from "@/lib/rss-parser"
 
@@ -76,12 +76,19 @@ export default function EpisodesSection({ episodes }: EpisodesSectionProps) {
                       {episode.date}
                     </span>
                   </div>
-                  <AudioPlayer
-                    audioUrl={episode.audioUrl}
-                    title={cleanText(episode.title)}
+                  <SimplePlayButton
+                    episode={{
+                      id: episode.id,
+                      title: cleanText(episode.title),
+                      audioUrl: episode.audioUrl,
+                      imageUrl: episode.imageUrl,
+                      duration: episode.duration,
+                    }}
                     variant="outline"
                     className="border-red-800 text-red-800 hover:bg-red-50"
-                  />
+                  >
+                    Listen Now
+                  </SimplePlayButton>
                 </div>
               </CardContent>
             </Card>

@@ -6,7 +6,9 @@ import { Play, Podcast, Users, Star, Calendar, Clock, ExternalLink, Heart } from
 import Image from "next/image"
 import Link from "next/link"
 import EpisodesSection from "@/components/episodes-section"
-import { AudioPlayer } from "@/components/audio-player"
+import { SimplePlayButton } from "@/components/simple-play-button"
+import { AudioPlayerWidget } from "@/components/audio-player-widget"
+import { useAudioPlayerContext } from "@/hooks/use-audio-player-context"
 import { fetchEpisodes } from "@/lib/rss-parser"
 
 export default async function PodcastWebsite() {
@@ -47,6 +49,12 @@ export default async function PodcastWebsite() {
       url: "https://feeds.buzzsprout.com/2499350.rss",
     },
   ]
+
+  return <PodcastWebsiteContent episodes={episodes} firstEpisode={firstEpisode} platforms={platforms} />
+}
+
+function PodcastWebsiteContent({ episodes, firstEpisode, platforms }: any) {
+  const { currentEpisode, isPlayerOpen, isMinimized, closePlayer, toggleMinimize } = useAudioPlayerContext()
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-rose-50 to-red-50">
@@ -102,13 +110,21 @@ export default async function PodcastWebsite() {
               </div>
               <div className="flex flex-col sm:flex-row gap-4">
                 {firstEpisode?.audioUrl ? (
-                  <AudioPlayer
-                    audioUrl={firstEpisode.audioUrl}
-                    title={firstEpisode.title}
+                  <SimplePlayButton
+                    episode={{
+                      id: firstEpisode.id,
+                      title: firstEpisode.title,
+                      audioUrl: firstEpisode.audioUrl,
+                      imageUrl: firstEpisode.imageUrl,
+                      duration: firstEpisode.duration,
+                    }}
                     size="lg"
                     variant="default"
                     className="bg-red-800 hover:bg-red-900 text-white"
-                  />
+                  >
+                    <Play className="w-5 h-5 mr-2" />
+                    Start Listening
+                  </SimplePlayButton>
                 ) : (
                   <Button
                     size="lg"
@@ -126,7 +142,7 @@ export default async function PodcastWebsite() {
                 )}
               </div>
               <div className="flex items-center justify-center sm:justify-start gap-4 mt-4">
-                {platforms.map((platform) => (
+                {platforms.map((platform: any) => (
                   <Link
                     key={platform.name}
                     href={platform.url}
@@ -302,7 +318,7 @@ export default async function PodcastWebsite() {
             <p className="text-lg text-gray-600">Subscribe on your favorite platform</p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-            {platforms.map((platform) => (
+            {platforms.map((platform: any) => (
               <Link key={platform.name} href={platform.url} className="group" target="_blank" rel="noopener noreferrer">
                 <div className="text-center p-6 hover:shadow-lg transition-all group-hover:scale-105 hover:bg-red-50 border rounded-lg">
                   <div className="space-y-3">
@@ -399,6 +415,16 @@ export default async function PodcastWebsite() {
           </div>
         </div>
       </footer>
+
+      {/* Audio Player Widget */}
+      {isPlayerOpen && (
+        <AudioPlayerWidget
+          episode={currentEpisode}
+          onClose={closePlayer}
+          isMinimized={isMinimized}
+          onToggleMinimize={toggleMinimize}
+        />
+      )}
     </div>
   )
 }

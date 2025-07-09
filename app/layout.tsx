@@ -4,6 +4,7 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { Analytics } from "@vercel/analytics/react"
 import { Suspense } from "react"
+import { AudioPlayerProvider } from "@/hooks/use-audio-player-context"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -36,10 +37,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Suspense>
-          {children}
-          <Analytics />
-        </Suspense>
+        <AudioPlayerProvider>
+          <Suspense>
+            {children}
+            <Analytics />
+          </Suspense>
+        </AudioPlayerProvider>
       </body>
     </html>
   )
