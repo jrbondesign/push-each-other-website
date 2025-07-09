@@ -123,20 +123,6 @@ export default function EpisodesSection({ episodes }: EpisodesSectionProps) {
             </Button>
           </div>
         )}
-
-        {/* Debug info - remove this in production */}
-        <div className="mt-8 p-4 bg-gray-100 rounded-lg text-sm text-gray-600">
-          <p>Debug: Total episodes loaded: {episodes.length}</p>
-          <p>Debug: Showing episodes: {displayedEpisodes.length}</p>
-          <p>Debug: Episode titles:</p>
-          <ul className="list-disc list-inside mt-2">
-            {episodes.map((ep, idx) => (
-              <li key={ep.id}>
-                Episode {episodes.length - idx}: {cleanText(ep.title)}
-              </li>
-            ))}
-          </ul>
-        </div>
       </div>
     </section>
   )
