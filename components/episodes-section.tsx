@@ -1,15 +1,24 @@
 "use client"
 
+import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Calendar } from "lucide-react"
-import { fetchEpisodes } from "@/lib/rss-parser"
+import { Calendar, ChevronDown, ChevronUp } from "lucide-react"
 import { AudioPlayer } from "@/components/audio-player"
 import Image from "next/image"
+import type { Episode } from "@/lib/rss-parser"
 
-export default async function EpisodesSection() {
-  const episodes = await fetchEpisodes()
+interface EpisodesSectionProps {
+  episodes: Episode[]
+}
+
+export default function EpisodesSection({ episodes }: EpisodesSectionProps) {
+  const [showAll, setShowAll] = useState(false)
+  const INITIAL_EPISODES_COUNT = 3
+
+  const displayedEpisodes = showAll ? episodes : episodes.slice(0, INITIAL_EPISODES_COUNT)
+  const hasMoreEpisodes = episodes.length > INITIAL_EPISODES_COUNT
 
   // Function to clean up text and convert HTML entities to proper quotes
   const cleanText = (text: string) => {
@@ -33,7 +42,7 @@ export default async function EpisodesSection() {
           <p className="text-lg text-gray-600">Catch up on our most recent conversations</p>
         </div>
         <div className="grid gap-6">
-          {episodes.map((episode, index) => (
+          {displayedEpisodes.map((episode, index) => (
             <Card
               key={episode.id}
               className={`${episode.featured ? "ring-2 ring-red-800" : ""} hover:shadow-lg transition-shadow bg-white`}
@@ -57,12 +66,6 @@ export default async function EpisodesSection() {
                     <CardTitle className="text-xl">{cleanText(episode.title)}</CardTitle>
                     <CardDescription className="text-base">{cleanText(episode.description)}</CardDescription>
                   </div>
-                  <AudioPlayer
-                    audioUrl={episode.audioUrl}
-                    title={cleanText(episode.title)}
-                    variant="ghost"
-                    className="shrink-0 hover:bg-red-50"
-                  />
                 </div>
               </CardHeader>
               <CardContent className="pt-0">
@@ -84,11 +87,29 @@ export default async function EpisodesSection() {
             </Card>
           ))}
         </div>
-        <div className="text-center mt-12">
-          <Button variant="outline" size="lg" className="border-red-800 text-red-800 hover:bg-red-50 bg-transparent">
-            View All Episodes
-          </Button>
-        </div>
+
+        {hasMoreEpisodes && (
+          <div className="text-center mt-12">
+            <Button
+              variant="outline"
+              size="lg"
+              className="border-red-800 text-red-800 hover:bg-red-50 bg-transparent"
+              onClick={() => setShowAll(!showAll)}
+            >
+              {showAll ? (
+                <>
+                  <ChevronUp className="w-4 h-4 mr-2" />
+                  Show Less
+                </>
+              ) : (
+                <>
+                  <ChevronDown className="w-4 h-4 mr-2" />
+                  View All Episodes ({episodes.length - INITIAL_EPISODES_COUNT} more)
+                </>
+              )}
+            </Button>
+          </div>
+        )}
       </div>
     </section>
   )

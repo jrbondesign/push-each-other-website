@@ -93,7 +93,7 @@ export async function fetchEpisodes(): Promise<Episode[]> {
       })
     })
 
-    return episodes.slice(0, 4) // Return latest 4 episodes
+    return episodes // Return ALL episodes instead of limiting to 4
   } catch (error) {
     console.error("Error fetching RSS feed:", error)
     // Return fallback episodes if RSS fetch fails

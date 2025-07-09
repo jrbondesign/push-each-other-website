@@ -292,7 +292,7 @@ export default async function PodcastWebsite() {
       </section>
 
       {/* Episodes Section - Now using RSS data */}
-      <EpisodesSection />
+      <EpisodesSection episodes={episodes} />
 
       {/* Subscribe Section */}
       <section id="listen-everywhere" className="py-20 bg-white">
