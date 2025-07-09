@@ -31,13 +31,20 @@ export async function fetchEpisodes(): Promise<Episode[]> {
       // Extract title
       const titleMatch = itemXml.match(/<title[^>]*><!\[CDATA\[(.*?)\]\]><\/title>|<title[^>]*>(.*?)<\/title>/)
       const rawTitle = (titleMatch?.[1] || titleMatch?.[2] || "Untitled Episode").trim()
-      // Clean up HTML entities in title
+      // Clean up HTML entities in title - enhanced to handle more entities
       const title = rawTitle
         .replace(/&quot;/g, '"')
         .replace(/&apos;/g, "'")
         .replace(/&amp;/g, "&")
         .replace(/&lt;/g, "<")
         .replace(/&gt;/g, ">")
+        .replace(/&#39;/g, "'")
+        .replace(/&#8220;/g, '"')
+        .replace(/&#8221;/g, '"')
+        .replace(/&#8216;/g, "'")
+        .replace(/&#8217;/g, "'")
+        .replace(/&#8211;/g, "–")
+        .replace(/&#8212;/g, "—")
 
       // Extract description
       const descMatch = itemXml.match(
@@ -50,6 +57,13 @@ export async function fetchEpisodes(): Promise<Episode[]> {
         .replace(/&amp;/g, "&")
         .replace(/&lt;/g, "<")
         .replace(/&gt;/g, ">")
+        .replace(/&#39;/g, "'")
+        .replace(/&#8220;/g, '"')
+        .replace(/&#8221;/g, '"')
+        .replace(/&#8216;/g, "'")
+        .replace(/&#8217;/g, "'")
+        .replace(/&#8211;/g, "–")
+        .replace(/&#8212;/g, "—")
 
       // Extract pub date
       const pubDateMatch = itemXml.match(/<pubDate[^>]*>(.*?)<\/pubDate>/)

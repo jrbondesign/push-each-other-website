@@ -20,7 +20,7 @@ export default function EpisodesSection({ episodes }: EpisodesSectionProps) {
   const displayedEpisodes = showAll ? episodes : episodes.slice(0, INITIAL_EPISODES_COUNT)
   const hasMoreEpisodes = episodes.length > INITIAL_EPISODES_COUNT
 
-  // Function to clean up text and convert HTML entities to proper quotes
+  // Enhanced function to clean up text and convert HTML entities to proper quotes
   const cleanText = (text: string) => {
     return text
       .replace(/&quot;/g, '"')
@@ -28,10 +28,13 @@ export default function EpisodesSection({ episodes }: EpisodesSectionProps) {
       .replace(/&amp;/g, "&")
       .replace(/&lt;/g, "<")
       .replace(/&gt;/g, ">")
+      .replace(/&#39;/g, "'")
       .replace(/&#8220;/g, '"')
       .replace(/&#8221;/g, '"')
       .replace(/&#8216;/g, "'")
       .replace(/&#8217;/g, "'")
+      .replace(/&#8211;/g, "–")
+      .replace(/&#8212;/g, "—")
   }
 
   return (
