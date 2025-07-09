@@ -6,6 +6,7 @@ import { Play, Podcast, Users, Star, Calendar, Clock, ExternalLink, Heart } from
 import Image from "next/image"
 import Link from "next/link"
 import EpisodesSection from "@/components/episodes-section"
+import { AudioPlayer } from "@/components/audio-player"
 import { fetchEpisodes } from "@/lib/rss-parser"
 
 export default async function PodcastWebsite() {
@@ -100,14 +101,29 @@ export default async function PodcastWebsite() {
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button
-                  size="lg"
-                  className="bg-red-800 hover:bg-red-900 text-white"
-                  onClick={() => firstEpisode?.audioUrl && window.open(firstEpisode.audioUrl, "_blank")}
-                >
-                  <Play className="w-5 h-5 mr-2" />
-                  Start Listening
-                </Button>
+                {firstEpisode?.audioUrl ? (
+                  <AudioPlayer
+                    audioUrl={firstEpisode.audioUrl}
+                    title={firstEpisode.title}
+                    size="lg"
+                    variant="default"
+                    className="bg-red-800 hover:bg-red-900 text-white"
+                  />
+                ) : (
+                  <Button
+                    size="lg"
+                    className="bg-red-800 hover:bg-red-900 text-white"
+                    onClick={() =>
+                      window.open(
+                        "https://podcasts.apple.com/us/podcast/push-each-other-to-the-top/id1818173130",
+                        "_blank",
+                      )
+                    }
+                  >
+                    <Play className="w-5 h-5 mr-2" />
+                    Start Listening
+                  </Button>
+                )}
               </div>
               <div className="flex items-center justify-center sm:justify-start gap-4 mt-4">
                 {platforms.map((platform) => (

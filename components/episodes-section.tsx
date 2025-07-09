@@ -3,8 +3,9 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Play, Calendar } from "lucide-react"
+import { Calendar } from "lucide-react"
 import { fetchEpisodes } from "@/lib/rss-parser"
+import { AudioPlayer } from "@/components/audio-player"
 import Image from "next/image"
 
 export default async function EpisodesSection() {
@@ -56,14 +57,12 @@ export default async function EpisodesSection() {
                     <CardTitle className="text-xl">{cleanText(episode.title)}</CardTitle>
                     <CardDescription className="text-base">{cleanText(episode.description)}</CardDescription>
                   </div>
-                  <Button
-                    size="sm"
+                  <AudioPlayer
+                    audioUrl={episode.audioUrl}
+                    title={cleanText(episode.title)}
                     variant="ghost"
                     className="shrink-0 hover:bg-red-50"
-                    onClick={() => episode.audioUrl && window.open(episode.audioUrl, "_blank")}
-                  >
-                    <Play className="w-4 h-4" />
-                  </Button>
+                  />
                 </div>
               </CardHeader>
               <CardContent className="pt-0">
@@ -74,21 +73,19 @@ export default async function EpisodesSection() {
                       {episode.date}
                     </span>
                   </div>
-                  <Button
+                  <AudioPlayer
+                    audioUrl={episode.audioUrl}
+                    title={cleanText(episode.title)}
                     variant="outline"
-                    size="sm"
                     className="border-red-800 text-red-800 hover:bg-red-50"
-                    onClick={() => episode.audioUrl && window.open(episode.audioUrl, "_blank")}
-                  >
-                    Listen Now
-                  </Button>
+                  />
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
         <div className="text-center mt-12">
-          <Button variant="outline" size="lg" className="border-red-800 text-red-800 hover:bg-red-50">
+          <Button variant="outline" size="lg" className="border-red-800 text-red-800 hover:bg-red-50 bg-transparent">
             View All Episodes
           </Button>
         </div>
