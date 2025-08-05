@@ -418,7 +418,7 @@ export default function PodcastWebsiteClient({ episodes, firstEpisode, platforms
                   YouTube
                 </Link>
                 <Link
-                  href="mailto:hello@pushtothetopp.com"
+                  href="mailto:hope@pusheachothertothetop.com"
                   className="block text-gray-400 hover:text-white transition-colors"
                 >
                   Email
