@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     description: "A podcast about recovery, resilience, and the power of honest conversation.",
     images: ["/podcast-cover.png"],
   },
-    generator: 'v0.dev'
+    generator: 'v0.app'
 }
 
 export default function RootLayout({

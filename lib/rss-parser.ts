@@ -11,29 +11,33 @@ export interface Episode {
 
 export async function fetchEpisodes(): Promise<Episode[]> {
   try {
-    const response = await fetch("https://feeds.buzzsprout.com/2499350.rss", {
-      next: { revalidate: 3600 }, // Cache for 1 hour
+    const response = await fetch("/api/rss", {
+      cache: "no-store",
     })
 
+    console.log("[v0] RSS fetch response status:", response.status)
+    console.log("[v0] RSS fetch response ok:", response.ok)
+
     if (!response.ok) {
-      throw new Error("Failed to fetch RSS feed")
+      console.error("[v0] RSS fetch failed with status:", response.status)
+      throw new Error(`Failed to fetch RSS feed: ${response.status}`)
     }
 
     const xmlText = await response.text()
-    console.log("RSS Feed fetched, length:", xmlText.length) // Debug log
+    console.log("[v0] RSS Feed fetched successfully, length:", xmlText.length)
 
     // Use regex parsing instead of DOMParser for server compatibility
     const episodes: Episode[] = []
 
     // Extract items using regex
     const itemMatches = xmlText.match(/<item[^>]*>[\s\S]*?<\/item>/g) || []
-    console.log("Found", itemMatches.length, "episodes in RSS feed") // Debug log
+    console.log("[v0] Found", itemMatches.length, "episodes in RSS feed")
 
     itemMatches.forEach((itemXml, index) => {
       // Extract title
       const titleMatch = itemXml.match(/<title[^>]*><!\[CDATA\[(.*?)\]\]><\/title>|<title[^>]*>(.*?)<\/title>/)
       const rawTitle = (titleMatch?.[1] || titleMatch?.[2] || "Untitled Episode").trim()
-      // Clean up HTML entities in title - enhanced to handle more entities
+      // Clean up HTML entities in title
       const title = rawTitle
         .replace(/&quot;/g, '"')
         .replace(/&apos;/g, "'")
@@ -105,16 +109,20 @@ export async function fetchEpisodes(): Promise<Episode[]> {
         date: formattedDate,
         audioUrl: audioUrl,
         imageUrl: imageUrl,
-        featured: index === 0, // Mark first episode as featured
+        featured: index === 0,
       })
 
-      console.log(`Episode ${index + 1}: ${title}`) // Debug log
+      console.log(`[v0] Episode ${index + 1}: ${title}`)
     })
 
-    console.log("Total episodes processed:", episodes.length) // Debug log
-    return episodes // Return ALL episodes
+    console.log("[v0] Total episodes processed:", episodes.length)
+    return episodes
   } catch (error) {
-    console.error("Error fetching RSS feed:", error)
+    console.error("[v0] Error fetching RSS feed:", error)
+    if (error instanceof Error) {
+      console.error("[v0] Error message:", error.message)
+      console.error("[v0] Error stack:", error.stack)
+    }
     // Return fallback episodes if RSS fetch fails
     return [
       {

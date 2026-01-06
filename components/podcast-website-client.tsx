@@ -113,6 +113,9 @@ export default function PodcastWebsiteClient({ episodes, firstEpisode, platforms
               <Link href="#listen-everywhere" className="text-gray-600 hover:text-gray-900 transition-colors">
                 Subscribe
               </Link>
+              <Link href="/contact" className="text-gray-600 hover:text-gray-900 transition-colors">
+                Contact Us
+              </Link>
             </nav>
           </div>
         </div>
@@ -388,6 +391,9 @@ export default function PodcastWebsiteClient({ episodes, firstEpisode, platforms
                 <Link href="#listen-everywhere" className="block text-gray-400 hover:text-white transition-colors">
                   Subscribe
                 </Link>
+                <Link href="/contact" className="block text-gray-400 hover:text-white transition-colors">
+                  Contact Us
+                </Link>
               </div>
             </div>
             <div className="space-y-4">
@@ -417,11 +423,8 @@ export default function PodcastWebsiteClient({ episodes, firstEpisode, platforms
                 >
                   YouTube
                 </Link>
-                <Link
-                  href="mailto:hope@pusheachothertothetop.com"
-                  className="block text-gray-400 hover:text-white transition-colors"
-                >
-                  Email
+                <Link href="/contact" className="block text-gray-400 hover:text-white transition-colors">
+                  Contact Form
                 </Link>
               </div>
             </div>
