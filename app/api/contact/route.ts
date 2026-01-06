@@ -5,10 +5,37 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { name, email, subject, message } = body
 
-    console.log("[v0] Contact form submission received:", { name, subject })
+    // Validate required fields
+    if (!name || !email || !subject || !message) {
+      return NextResponse.json({ success: false, error: "All fields are required" }, { status: 400 })
+    }
 
-    // Create mailto link format
-    const emailBody = `
+    const RESEND_API_KEY = process.env.RESEND_API_KEY
+
+    if (!RESEND_API_KEY) {
+      console.error("[v0] RESEND_API_KEY not configured")
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Email service not configured. Please add RESEND_API_KEY environment variable.",
+        },
+        { status: 500 },
+      )
+    }
+
+    // Send email using Resend API
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${RESEND_API_KEY}`,
+      },
+      body: JSON.stringify({
+        from: "Push Each Other to the Top <onboarding@resend.dev>", // Resend test email
+        to: ["pusheachotherpod@gmail.com"],
+        reply_to: email,
+        subject: `Contact Form: ${subject}`,
+        text: `
 Name: ${name}
 Email: ${email}
 Subject: ${subject}
@@ -18,27 +45,29 @@ ${message}
 
 ---
 This message was sent from the Push Each Other to the Top podcast website contact form.
-    `.trim()
+        `.trim(),
+      }),
+    })
 
-    // In a production environment, you would use a service like Resend, SendGrid, or Nodemailer here
-    // For now, we'll just log the submission and return success
+    const data = await response.json()
 
-    // Example with Resend (if you add the integration):
-    // const { data, error } = await resend.emails.send({
-    //   from: 'noreply@pusheachothertothetop.com',
-    //   to: process.env.CONTACT_EMAIL,
-    //   subject: `Contact Form: ${subject}`,
-    //   text: emailBody,
-    //   replyTo: email,
-    // })
+    if (!response.ok) {
+      console.error("[v0] Resend API error:", data)
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Failed to send email. Please try again later.",
+        },
+        { status: 500 },
+      )
+    }
 
-    console.log("[v0] Email submission logged")
-    console.log("[v0] Email content:", emailBody)
+    console.log("[v0] Email sent successfully via Resend:", data.id)
 
     return NextResponse.json(
       {
         success: true,
-        message: "Message received successfully",
+        message: "Message sent successfully! We'll get back to you soon.",
       },
       { status: 200 },
     )
