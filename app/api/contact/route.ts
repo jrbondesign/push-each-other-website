@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { Resend } from "resend"
 
 export async function POST(request: NextRequest) {
   console.log("[v0] Contact API called")
@@ -9,7 +10,6 @@ export async function POST(request: NextRequest) {
 
     console.log("[v0] Contact form data received:", { name, email, subject })
 
-    // Validate required fields
     if (!name || !email || !subject || !message) {
       console.log("[v0] Validation failed: missing required fields")
       return NextResponse.json({ success: false, error: "All fields are required" }, { status: 400 })
@@ -28,48 +28,42 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log("[v0] Sending email via Resend...")
+    console.log("[v0] Initializing Resend client...")
 
-    // Send email using Resend API
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${RESEND_API_KEY}`,
-      },
-      body: JSON.stringify({
-        from: "Push Each Other to the Top <onboarding@resend.dev>", // Resend test email
-        to: ["pusheachotherpod@gmail.com"],
-        reply_to: email,
-        subject: `Contact Form: ${subject}`,
-        text: `
-Name: ${name}
-Email: ${email}
-Subject: ${subject}
+    const resend = new Resend(RESEND_API_KEY)
 
-Message:
-${message}
+    console.log("[v0] Sending email via Resend SDK...")
 
----
-This message was sent from the Push Each Other to the Top podcast website contact form.
-        `.trim(),
-      }),
+    const { data, error } = await resend.emails.send({
+      from: "Push Each Other to the Top <onboarding@resend.dev>",
+      to: ["pusheachotherpod@gmail.com"],
+      reply_to: email,
+      subject: `Contact Form: ${subject}`,
+      html: `
+        <h2>New Contact Form Submission</h2>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Subject:</strong> ${subject}</p>
+        <hr />
+        <h3>Message:</h3>
+        <p>${message.replace(/\n/g, "<br />")}</p>
+        <hr />
+        <p><em>This message was sent from the Push Each Other to the Top podcast website contact form.</em></p>
+      `,
     })
 
-    const data = await response.json()
-
-    if (!response.ok) {
-      console.error("[v0] Resend API error:", data)
+    if (error) {
+      console.error("[v0] Resend SDK error:", error)
       return NextResponse.json(
         {
           success: false,
-          error: "Failed to send email. Please try again later.",
+          error: error.message || "Failed to send email. Please try again later.",
         },
         { status: 500 },
       )
     }
 
-    console.log("[v0] Email sent successfully via Resend:", data.id)
+    console.log("[v0] Email sent successfully via Resend SDK:", data?.id)
 
     return NextResponse.json(
       {
@@ -80,6 +74,12 @@ This message was sent from the Push Each Other to the Top podcast website contac
     )
   } catch (error) {
     console.error("[v0] Error processing contact form:", error)
-    return NextResponse.json({ success: false, error: "Failed to process message" }, { status: 500 })
+    return NextResponse.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to process message",
+      },
+      { status: 500 },
+    )
   }
 }
