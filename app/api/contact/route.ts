@@ -1,12 +1,17 @@
 import { type NextRequest, NextResponse } from "next/server"
 
 export async function POST(request: NextRequest) {
+  console.log("[v0] Contact API called")
+
   try {
     const body = await request.json()
     const { name, email, subject, message } = body
 
+    console.log("[v0] Contact form data received:", { name, email, subject })
+
     // Validate required fields
     if (!name || !email || !subject || !message) {
+      console.log("[v0] Validation failed: missing required fields")
       return NextResponse.json({ success: false, error: "All fields are required" }, { status: 400 })
     }
 
@@ -22,6 +27,8 @@ export async function POST(request: NextRequest) {
         { status: 500 },
       )
     }
+
+    console.log("[v0] Sending email via Resend...")
 
     // Send email using Resend API
     const response = await fetch("https://api.resend.com/emails", {

@@ -18,10 +18,18 @@ export default function ContactForm() {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
+    setError(null)
+
+    console.log("[v0] Contact form submitting:", {
+      name: formData.name,
+      email: formData.email,
+      subject: formData.subject,
+    })
 
     try {
       const response = await fetch("/api/contact", {
@@ -32,12 +40,20 @@ export default function ContactForm() {
         body: JSON.stringify(formData),
       })
 
+      console.log("[v0] Contact API response status:", response.status)
+
+      const data = await response.json()
+      console.log("[v0] Contact API response data:", data)
+
       if (response.ok) {
         setIsSubmitted(true)
         setFormData({ name: "", email: "", subject: "", message: "" })
+      } else {
+        setError(data.error || "Failed to send message. Please try again.")
       }
     } catch (error) {
-      console.error("Error submitting form:", error)
+      console.error("[v0] Error submitting form:", error)
+      setError("Network error. Please check your connection and try again.")
     } finally {
       setIsSubmitting(false)
     }
@@ -60,6 +76,8 @@ export default function ContactForm() {
 
   return (
     <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-sm space-y-6">
+      {error && <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">{error}</div>}
+
       <div className="space-y-2">
         <Label htmlFor="name">Name</Label>
         <Input
