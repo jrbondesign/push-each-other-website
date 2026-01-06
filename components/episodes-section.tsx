@@ -66,7 +66,9 @@ export default function EpisodesSection({ episodes }: EpisodesSectionProps) {
                   <div className="space-y-2 flex-1">
                     <div className="flex items-center gap-2">
                       {episode.featured && <Badge className="bg-red-800 hover:bg-red-900">Featured</Badge>}
-                      <span className="text-sm text-gray-500">Episode {episodes.length - index}</span>
+                      <span className="text-sm text-gray-500">
+                        Episode {episode.episodeNumber || episodes.length - index}
+                      </span>
                     </div>
                     <CardTitle className="text-xl">{cleanText(episode.title)}</CardTitle>
                     <CardDescription className="text-base">{cleanText(episode.description)}</CardDescription>

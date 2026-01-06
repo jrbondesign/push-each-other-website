@@ -7,6 +7,7 @@ export interface Episode {
   audioUrl: string
   imageUrl?: string
   featured?: boolean
+  episodeNumber?: number
 }
 
 export async function fetchEpisodes(): Promise<Episode[]> {
@@ -62,6 +63,9 @@ export async function fetchEpisodes(): Promise<Episode[]> {
           })
         : "Unknown Date"
 
+      const episodeMatch = item.title?.match(/E(\d+)/)
+      const episodeNumber = episodeMatch ? Number.parseInt(episodeMatch[1], 10) : undefined
+
       return {
         id: item.guid || `episode-${index}`,
         title: cleanText(item.title || "Untitled Episode"),
@@ -71,6 +75,7 @@ export async function fetchEpisodes(): Promise<Episode[]> {
         audioUrl: item.enclosure?.link || "",
         imageUrl: item.thumbnail || data.feed?.image || "/podcast-cover.png",
         featured: index === 0,
+        episodeNumber,
       }
     })
 
