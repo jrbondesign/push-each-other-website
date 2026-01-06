@@ -14,13 +14,9 @@ export async function GET() {
       next: { revalidate: 3600 },
     })
 
-    console.log("[v0] RSS API route - response status:", response.status)
-    console.log("[v0] RSS API route - final URL:", response.url)
-
     // If still getting 301, try to get the Location header
     if (response.status === 301 || response.status === 302) {
       const redirectUrl = response.headers.get("Location")
-      console.log("[v0] RSS API route - redirect location:", redirectUrl)
 
       if (redirectUrl) {
         // Follow the redirect manually
@@ -32,11 +28,8 @@ export async function GET() {
           },
         })
 
-        console.log("[v0] RSS API route - redirect response status:", redirectResponse.status)
-
         if (redirectResponse.ok) {
           const xmlText = await redirectResponse.text()
-          console.log("[v0] RSS API route - fetched via redirect, length:", xmlText.length)
 
           return new NextResponse(xmlText, {
             headers: {
@@ -49,12 +42,10 @@ export async function GET() {
     }
 
     if (!response.ok) {
-      console.error("[v0] RSS API route failed with status:", response.status)
       return NextResponse.json({ error: `Failed to fetch RSS feed: ${response.status}` }, { status: response.status })
     }
 
     const xmlText = await response.text()
-    console.log("[v0] RSS API route - fetched successfully, length:", xmlText.length)
 
     return new NextResponse(xmlText, {
       headers: {
@@ -63,7 +54,7 @@ export async function GET() {
       },
     })
   } catch (error) {
-    console.error("[v0] RSS API route error:", error)
+    console.error("RSS API route error:", error)
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 })
   }
 }

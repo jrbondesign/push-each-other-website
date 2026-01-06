@@ -15,23 +15,17 @@ export async function fetchEpisodes(): Promise<Episode[]> {
       cache: "no-store",
     })
 
-    console.log("[v0] RSS fetch response status:", response.status)
-    console.log("[v0] RSS fetch response ok:", response.ok)
-
     if (!response.ok) {
-      console.error("[v0] RSS fetch failed with status:", response.status)
       throw new Error(`Failed to fetch RSS feed: ${response.status}`)
     }
 
     const xmlText = await response.text()
-    console.log("[v0] RSS Feed fetched successfully, length:", xmlText.length)
 
     // Use regex parsing instead of DOMParser for server compatibility
     const episodes: Episode[] = []
 
     // Extract items using regex
     const itemMatches = xmlText.match(/<item[^>]*>[\s\S]*?<\/item>/g) || []
-    console.log("[v0] Found", itemMatches.length, "episodes in RSS feed")
 
     itemMatches.forEach((itemXml, index) => {
       // Extract title
@@ -111,18 +105,11 @@ export async function fetchEpisodes(): Promise<Episode[]> {
         imageUrl: imageUrl,
         featured: index === 0,
       })
-
-      console.log(`[v0] Episode ${index + 1}: ${title}`)
     })
 
-    console.log("[v0] Total episodes processed:", episodes.length)
     return episodes
   } catch (error) {
-    console.error("[v0] Error fetching RSS feed:", error)
-    if (error instanceof Error) {
-      console.error("[v0] Error message:", error.message)
-      console.error("[v0] Error stack:", error.stack)
-    }
+    console.error("Error fetching RSS feed:", error)
     // Return fallback episodes if RSS fetch fails
     return [
       {
