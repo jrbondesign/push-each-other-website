@@ -431,7 +431,7 @@ export default function PodcastWebsiteClient({ episodes, firstEpisode, platforms
           </div>
           <Separator className="my-8 bg-gray-800" />
           <div className="text-center text-gray-400">
-            <p>&copy; 2025 Push Each Other to the Top. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} Push Each Other to the Top. All rights reserved.</p>
           </div>
         </div>
       </footer>

@@ -66,11 +66,26 @@ export async function fetchEpisodes(): Promise<Episode[]> {
       const episodeMatch = item.title?.match(/E(\d+)/)
       const episodeNumber = episodeMatch ? Number.parseInt(episodeMatch[1], 10) : undefined
 
+      let duration = "0:00"
+      if (item.enclosure?.duration) {
+        // If duration is in seconds, convert to MM:SS format
+        const durationNum = Number.parseInt(item.enclosure.duration, 10)
+        if (!Number.isNaN(durationNum)) {
+          const minutes = Math.floor(durationNum / 60)
+          const seconds = durationNum % 60
+          duration = `${minutes}:${seconds.toString().padStart(2, "0")}`
+        } else {
+          duration = item.enclosure.duration
+        }
+      } else if (item["itunes:duration"]) {
+        duration = item["itunes:duration"]
+      }
+
       return {
         id: item.guid || `episode-${index}`,
         title: cleanText(item.title || "Untitled Episode"),
         description: cleanText(description.substring(0, 200) + (description.length > 200 ? "..." : "")),
-        duration: item.enclosure?.duration || "0:00",
+        duration: duration,
         date: formattedDate,
         audioUrl: item.enclosure?.link || "",
         imageUrl: item.thumbnail || data.feed?.image || "/podcast-cover.png",
