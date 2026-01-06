@@ -2,7 +2,10 @@ import { fetchEpisodes } from "@/lib/rss-parser"
 import PodcastWebsiteClient from "@/components/podcast-website-client"
 
 export default async function PodcastWebsite() {
+  console.log("[v0] Fetching episodes from RSS feed...")
   const episodes = await fetchEpisodes()
+  console.log("[v0] Episodes fetched:", episodes.length)
+
   const firstEpisode = episodes[0]
 
   const platforms = [
