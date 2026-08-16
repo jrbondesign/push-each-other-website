@@ -394,6 +394,9 @@ export default function PodcastWebsiteClient({ episodes, firstEpisode, platforms
                 <Link href="/contact" className="block text-gray-400 hover:text-white transition-colors">
                   Contact Us
                 </Link>
+                <Link href="/video-light.html" className="block text-gray-400 hover:text-white transition-colors">
+                  Video Light
+                </Link>
               </div>
             </div>
             <div className="space-y-4">
