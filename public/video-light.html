@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Video Light — Push Each Other to the Top</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: #fff8ee;
+      transition: background 0.3s ease;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      cursor: default;
+    }
+
+    /* ── Floating dock ── */
+    #dock {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      user-select: none;
+    }
+
+    /* ── The pill / panel — one shape that morphs ── */
+    #card {
+      background: rgba(18, 18, 18, 0.82);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 22px;
+      width: 148px;
+      overflow: hidden;
+      cursor: default;
+      /* morph transition */
+      transition:
+        width 0.42s cubic-bezier(0.4, 0, 0.2, 1),
+        border-radius 0.42s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #dock:hover #card,
+    #dock.picker-open #card {
+      width: 340px;
+      border-radius: 18px;
+    }
+
+    /* ── Grid wrapper — controls the height expansion ── */
+    #panel-grid {
+      display: grid;
+      grid-template-rows: 0fr;
+      overflow: hidden; /* clips child padding when collapsed */
+      transition: grid-template-rows 0.42s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #dock:hover #panel-grid,
+    #dock.picker-open #panel-grid {
+      grid-template-rows: 1fr;
+    }
+
+    /* Inner panel — required min-height:0 and overflow:hidden, NO padding ── */
+    #panel-inner {
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    /* Content wrapper holds the actual padding so collapse works cleanly */
+    #panel-content {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      align-items: center;
+      padding: 18px 20px 8px;
+      opacity: 0;
+      transition: opacity 0.2s ease 0.1s;
+    }
+
+    #dock:hover #panel-content,
+    #dock.picker-open #panel-content {
+      opacity: 1;
+      transition: opacity 0.25s ease 0.18s;
+    }
+
+    /* ── Panel title ── */
+    #panel-title {
+      color: rgba(255,255,255,0.4);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* ── Pill label — always visible, fades on expand ── */
+    #pill-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 3px 16px;
+    }
+
+    #pill-label {
+      color: rgba(255,255,255,0.65);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      white-space: nowrap;
+      transition: opacity 0.2s ease;
+    }
+
+    #dock:hover #pill-label,
+    #dock.picker-open #pill-label {
+      opacity: 0;
+    }
+
+    /* divider between panel and pill bar */
+    #pill-divider {
+      height: 1px;
+      background: rgba(255,255,255,0);
+      margin: 0 20px;
+      transition: background 0.3s ease 0.2s;
+    }
+
+    #dock:hover #pill-divider,
+    #dock.picker-open #pill-divider {
+      background: rgba(255,255,255,0.08);
+    }
+
+    /* ── Presets ── */
+    .presets {
+      display: flex;
+      gap: 7px;
+    }
+
+    .preset-btn {
+      border: none;
+      border-radius: 9px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.1s;
+      color: #111;
+    }
+
+    .preset-btn:hover { transform: scale(1.06); }
+    .preset-btn:active { transform: scale(0.97); }
+    .preset-btn.active {
+      outline: 2px solid white;
+      outline-offset: 2px;
+    }
+
+    /* ── Rows ── */
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .row label {
+      color: rgba(255,255,255,0.65);
+      font-size: 12px;
+      font-weight: 500;
+      min-width: 64px;
+    }
+
+    /* ── Slider ── */
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      flex: 1;
+      height: 5px;
+      border-radius: 3px;
+      background: rgba(255,255,255,0.18);
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: white;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+      cursor: pointer;
+    }
+
+    /* ── Color picker ── */
+    input[type="color"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 32px;
+      height: 26px;
+      border: none;
+      border-radius: 7px;
+      background: none;
+      padding: 0;
+      cursor: pointer;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+    input[type="color"]::-webkit-color-swatch {
+      border: none;
+      border-radius: 7px;
+    }
+
+    .custom-label {
+      color: rgba(255,255,255,0.35);
+      font-size: 11px;
+    }
+
+    /* ── Bottom buttons ── */
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      padding-bottom: 16px;
+    }
+
+    .action-btn {
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.75);
+      border-radius: 10px;
+      padding: 7px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .action-btn:hover { background: rgba(255,255,255,0.16); }
+    .action-btn.primary { color: white; background: rgba(255,255,255,0.12); }
+    .action-btn.primary:hover { background: rgba(255,255,255,0.22); }
+
+  </style>
+</head>
+<body>
+
+  <div id="dock">
+    <div id="card">
+
+      <!-- Controls — expands upward on hover -->
+      <div id="panel-grid">
+        <div id="panel-inner">
+        <div id="panel-content">
+
+          <div id="panel-title">Video Light</div>
+
+          <div class="presets">
+            <button class="preset-btn active" style="background:#fff8ee;" data-color="#fff8ee">Warm</button>
+            <button class="preset-btn" style="background:#fff5d6;" data-color="#fff5d6">Golden</button>
+            <button class="preset-btn" style="background:#ffffff;" data-color="#ffffff">Neutral</button>
+            <button class="preset-btn" style="background:#e8f0ff;" data-color="#e8f0ff">Cool</button>
+          </div>
+
+          <div class="row">
+            <label>Brightness</label>
+            <input type="range" id="brightness" min="5" max="100" value="100" />
+          </div>
+
+          <div class="row">
+            <label>Color</label>
+            <div style="display:flex; align-items:center; gap:8px; flex:1;">
+              <input type="color" id="color-picker" value="#fff8ee" title="Pick a custom color" />
+              <span class="custom-label">pick custom color</span>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button class="action-btn" id="reset-btn">↺ Reset</button>
+            <button class="action-btn primary" id="fs-btn">⛶ Fullscreen</button>
+          </div>
+
+        </div>
+        </div>
+      </div>
+
+      <!-- Thin divider appears when open -->
+      <div id="pill-divider"></div>
+
+      <!-- Pill bar — always visible -->
+      <div id="pill-bar">
+        <span id="pill-label">Video Light</span>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const body = document.body;
+    const brightnessSlider = document.getElementById('brightness');
+    const colorPicker = document.getElementById('color-picker');
+    const presetBtns = document.querySelectorAll('.preset-btn');
+    const fsBtn = document.getElementById('fs-btn');
+
+    let baseColor = '#fff8ee';
+    let brightness = 100;
+
+    function applyLight() {
+      const b = brightness / 100;
+      const r = parseInt(baseColor.slice(1,3), 16);
+      const g = parseInt(baseColor.slice(3,5), 16);
+      const bl = parseInt(baseColor.slice(5,7), 16);
+      const color = `rgb(${Math.round(r*b)}, ${Math.round(g*b)}, ${Math.round(bl*b)})`;
+      body.style.background = color;
+    }
+
+    presetBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        baseColor = btn.dataset.color;
+        colorPicker.value = baseColor;
+        presetBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        applyLight();
+      });
+    });
+
+    colorPicker.addEventListener('input', e => {
+      baseColor = e.target.value;
+      presetBtns.forEach(b => b.classList.remove('active'));
+      applyLight();
+    });
+
+    const dock = document.getElementById('dock');
+    colorPicker.addEventListener('click', () => dock.classList.add('picker-open'));
+    colorPicker.addEventListener('change', () => dock.classList.remove('picker-open'));
+    colorPicker.addEventListener('blur', () => dock.classList.remove('picker-open'));
+
+    brightnessSlider.addEventListener('input', e => {
+      brightness = parseInt(e.target.value);
+      applyLight();
+    });
+
+    document.getElementById('reset-btn').addEventListener('click', () => {
+      baseColor = '#fff8ee';
+      brightness = 100;
+      colorPicker.value = baseColor;
+      brightnessSlider.value = 100;
+      presetBtns.forEach(b => b.classList.remove('active'));
+      document.querySelector('[data-color="#fff8ee"]').classList.add('active');
+      applyLight();
+    });
+
+    fsBtn.addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+        fsBtn.textContent = '✕ Exit Fullscreen';
+      } else {
+        document.exitFullscreen();
+        fsBtn.textContent = '⛶ Fullscreen';
+      }
+    });
+
+    document.addEventListener('fullscreenchange', () => {
+      if (!document.fullscreenElement) fsBtn.textContent = '⛶ Fullscreen';
+    });
+
+    applyLight();
+  </script>
+</body>
+</html>
